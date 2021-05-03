@@ -136,13 +136,31 @@ static int to_json_rec(json_object *pnode, struct tree *start,
 
     json_object_object_add(pnode, start->label, elem);
 
-    list_for_each(tree, start->children)
+    if (start->children != NULL)
     {
-        if (TREE_HIDDEN(tree))
-            continue;
-        r = to_json_rec(elem, tree, NULL);
-        if (r < 0)
-            goto error;
+        if (tree_sibling_index(start->children) == 0)
+        {
+            r = to_json_rec(elem, start->children, NULL);
+            if (r < 0)
+                goto error;
+        }
+        else
+        {
+            json_object *jlist = json_object_new_array();
+            list_for_each(tree, start->children)
+            {
+                if (TREE_HIDDEN(tree))
+                    continue;
+                json_object *child = json_object_new_object();
+                if (child == NULL)
+                    goto error;
+                r = json_object_array_add(jlist, child);
+                to_json_rec(child, tree, NULL);
+                if (r < 0)
+                    goto error;
+            }
+            json_object_object_add(elem, "list", jlist);
+        }
     }
 
     return 0;
