@@ -73,7 +73,7 @@ static int to_json_span(json_object *elem, const char *pfor, int start, int end)
 }
 
 static int to_json_one(json_object *elem, const struct tree *tree,
-                        const char *pathin)
+                       const char *pathin)
 {
     int r;
 
@@ -122,7 +122,7 @@ error:
 }
 
 static int to_json_rec(json_object *pnode, struct tree *start,
-                        const char *pathin)
+                       const char *pathin)
 {
     int r;
 
@@ -148,18 +148,20 @@ static int to_json_rec(json_object *pnode, struct tree *start,
                 r = to_json_rec(elem, tree, NULL);
                 if (r < 0)
                     goto error;
-            } else
+            }
+            else
             {
                 char *list_node_name;
-                if (ALLOC_N(list_node_name, strlen(tree->label) + strlen("_list") + 1) < 0) {
+                if (ALLOC_N(list_node_name, strlen(tree->label) + strlen("_list") + 1) < 0)
+                {
                     goto error;
                 }
                 strcpy(list_node_name, tree->label);
                 strcat(list_node_name, "_list");
 
-
                 json_object *element_array;
-                if (json_object_object_get_ex(elem, list_node_name, &element_array) == FALSE) {
+                if (json_object_object_get_ex(elem, list_node_name, &element_array) == FALSE)
+                {
                     element_array = json_object_new_array();
                     json_object_object_add(elem, list_node_name, element_array);
                 }
@@ -173,13 +175,12 @@ static int to_json_rec(json_object *pnode, struct tree *start,
                 if (r < 0)
                     goto error;
 
-                 r = to_json_rec(child, tree, NULL);
+                r = to_json_rec(child, tree, NULL);
                 if (r < 0)
                     goto error;
             }
         }
     }
-
 
     return 0;
 error:
