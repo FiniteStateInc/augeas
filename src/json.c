@@ -138,30 +138,48 @@ static int to_json_rec(json_object *pnode, struct tree *start,
 
     if (start->children != NULL)
     {
-        if (tree_sibling_index(start->children) == 0)
+        list_for_each(tree, start->children)
         {
-            r = to_json_rec(elem, start->children, NULL);
-            if (r < 0)
-                goto error;
-        }
-        else
-        {
-            json_object *jlist = json_object_new_array();
-            list_for_each(tree, start->children)
+            if (TREE_HIDDEN(tree))
+                continue;
+
+            if (tree_sibling_index(tree) == 0)
             {
-                if (TREE_HIDDEN(tree))
-                    continue;
+                r = to_json_rec(elem, tree, NULL);
+                if (r < 0)
+                    goto error;
+            } else
+            {
+                char *list_node_name;
+                if (ALLOC_N(list_node_name, strlen(tree->label) + strlen("_list") + 1) < 0) {
+                    goto error;
+                }
+                strcpy(list_node_name, tree->label);
+                strcat(list_node_name, "_list");
+
+
+                json_object *element_array;
+                if (json_object_object_get_ex(elem, list_node_name, &element_array) == FALSE) {
+                    element_array = json_object_new_array();
+                    json_object_object_add(elem, list_node_name, element_array);
+                }
+                FREE(list_node_name);
+
                 json_object *child = json_object_new_object();
+
                 if (child == NULL)
                     goto error;
-                r = json_object_array_add(jlist, child);
-                to_json_rec(child, tree, NULL);
+                r = json_object_array_add(element_array, child);
+                if (r < 0)
+                    goto error;
+
+                 r = to_json_rec(child, tree, NULL);
                 if (r < 0)
                     goto error;
             }
-            json_object_object_add(elem, "list", jlist);
         }
     }
+
 
     return 0;
 error:
