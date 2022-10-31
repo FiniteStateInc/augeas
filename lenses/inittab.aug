@@ -5,7 +5,7 @@ module Inittab =
    let sep = Util.del_str ":"
    let eol = Util.del_str "\n"
 
-   let id = /[^\/#:\n]{1,4}/
+   let id = /[^\/#:\n]{0,10}/
    let value = /[^#:\n]*/
 
    let comment = Util.comment|Util.empty
