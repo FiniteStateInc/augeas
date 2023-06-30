@@ -160,7 +160,7 @@ static int to_json_rec(json_object *pnode, struct tree *start,
                 strcat(list_node_name, "_list");
 
                 json_object *element_array;
-                if (json_object_object_get_ex(elem, list_node_name, &element_array) == FALSE)
+                if (json_object_object_get_ex(elem, list_node_name, &element_array) == false)
                 {
                     element_array = json_object_new_array();
                     json_object_object_add(elem, list_node_name, element_array);
